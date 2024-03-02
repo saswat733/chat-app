@@ -1,10 +1,12 @@
 import React from "react";
+import { useAuthContext } from "../../../context/AuthContext";
 
 const NoChats = () => {
+    const {authUser}=useAuthContext()
   return (
-    <div className="px-4 flex-1 overflow-auto">
+    <div className="px-4 flex-1 overflow-auto ">
       <div className="flex flex-col justify-center items-center space-y-4  overflow-auto">
-        <h1 className="text-2xl">Welcome 👋 RadhaRaman 😎</h1>
+        <h1 className="text-2xl">Welcome 👋 {authUser.fullName} 😎</h1>
         <h2 className="">Select a chat to start messaging</h2>
         <svg
           xmlns="http://www.w3.org/2000/svg"

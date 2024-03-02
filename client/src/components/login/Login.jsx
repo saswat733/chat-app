@@ -1,8 +1,39 @@
+import axios from "axios";
 import React from "react";
 import {useState} from 'react'
+import toast from "react-hot-toast";
+import { Link, Navigate } from "react-router-dom";
 const Login = () => {
-    const [Email, setEmail] = useState('')
-    const [Password, setPassword] = useState('')
+   const [inputs, setinputs] = useState({
+    username:"",
+    password:"",
+   })
+   const [loading, setloading] = useState(false)
+   const [error, seterror] = useState(false)
+   const [success, setsuccess] = useState(false)
+
+   const handleLogin=async(e)=>{
+    e.preventDefault();
+    setloading(true);
+    try {
+      const response=await axios.post('/api/auth/login',{...inputs})
+      console.log(response);
+      setsuccess(true);
+      setloading(false);
+    } catch (error) {
+      console.log('error in login:',error.message)
+      toast.error('Invalid Credentials!')
+      seterror(true)
+    }finally{
+      toast.success('Logged In successfully!')
+    }
+
+   }
+   if(success){
+    return <Navigate to={'/chats'}/>
+   }
+
+
   return (
     <div className="h-full overflow-hidden rounded-lg">
       <div className="glass h-full overflow-hidden">
@@ -13,17 +44,18 @@ const Login = () => {
               <p className="py-6">SAFE-SECURE-PRIVATE</p>
             </div>
             <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-              <form className="card-body">
+              <form className="card-body" onSubmit={handleLogin}>
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Email</span>
+                    <span className="label-text">username</span>
                   </label>
                   <input
-                    type="email"
-                    placeholder="email"
+                    type="text"
+                    placeholder="username"
+                    value={inputs.username}
                     className="input input-bordered"
                     required
-                    onClick={(e)=>setEmail(e.target.event)}
+                    onChange={(e)=>setinputs({...inputs,username:e.target.value})}
                   />
                 </div>
                 <div className="form-control">
@@ -34,17 +66,25 @@ const Login = () => {
                     type="password"
                     placeholder="password"
                     className="input input-bordered"
+                    value={inputs.password}
                     required
-                    onClick={(e)=>setPassword(e.target.event)}
+                    onChange={(e)=>setinputs({...inputs,password:e.target.value})}
                   />
                   <label className="label">
-                    <a href="#" className="label-text-alt link link-hover">
+                    <Link href="/" className="label-text-alt link link-hover">
                       Forgot password?
-                    </a>
+                    </Link>
                   </label>
                 </div>
                 <div className="form-control mt-6">
-                  <button className="btn btn-primary">Login</button>
+                  {
+                    loading?(<span className="loading loading-dots loading-lg"></span>):(
+                  <button className="btn btn-primary">Login</button>)
+                  }
+                </div>
+                <div className="flex text-sm items-start">
+                <p>Don't have an account?<Link className="text-blue-700 underline" to={'/signup'}>Sign Up</Link></p>
+
                 </div>
               </form>
             </div>

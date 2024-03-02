@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
@@ -24,7 +25,7 @@ const Hero = () => {
                 <p className="py-6 max-w-lg">
                   ChatiFy make your communication with relatives, work friends, family more fun. Stay connected with them with plenty of features.
                 </p>
-                <button className="btn btn-success">Get Started</button>
+                <Link to={'/login'} className="btn btn-success">Get Started</Link>
               </div>
             </div>
           </div>

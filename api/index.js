@@ -5,10 +5,15 @@ import messageRoutes from './routes/message.routes.js';
 import userRoutes from './routes/user.routes.js';
 import connectDB from './db/index.js';
 import cookieParser from 'cookie-parser';
+import cors from 'cors'
 
 const app = express();
-
 dotenv.config();
+app.use(cors({
+  origin:process.env.CORS_ORIGIN,
+  credentials:true
+}))
+
 app.get('/', (req, res) => {
   res.send('Hello, world!');
 });

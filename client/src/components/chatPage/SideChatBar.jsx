@@ -1,6 +1,29 @@
-import React from "react";
+import React,{useState} from "react";
+import { useAuthContext } from "../../context/AuthContext";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { Navigate } from "react-router-dom";
 
 const SideChatBar = () => {
+  const {authUser,setauthUser}=useAuthContext()
+  const [success, setsuccess] = useState(false)
+  const handleLogOut=async()=>{
+    try {
+      await axios.get('/api/auth/logout');
+      toast.success('Successfully Logged Out')
+      setsuccess(true);
+      localStorage.removeItem('chat-user')
+      setauthUser('')
+      
+    } catch (error) {
+      console.log('error in logOut:',error.message);
+      toast.error('Error in Logging Out try again later!')
+      
+    }
+  }
+  if(success){
+    return <Navigate to={'/'}/>
+  }
   return (
     <div className=" rounded-lg p-2 flex flex-col gap-2">
       <div>
@@ -27,18 +50,18 @@ const SideChatBar = () => {
             <div className="flex gap-4">
               <div className="avatar offline">
                 <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                  <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+                  <img src={authUser.profilePic} />
                 </div>
               </div>
                 <h1 className="font-mono font-bold">
-                  RadhaRaman
+                  {authUser.username}
                 </h1>
             </div>
           </li>
         </ul>
       </div>
       <div className="divider divider-primary"></div>
-      <button className="btn btn-wide absolute bottom-2 left-1">Log Out</button>
+      <button onClick={handleLogOut} className="btn btn-wide absolute bottom-2 left-1">Log Out</button>
     </div>
   );
 };

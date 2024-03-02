@@ -6,9 +6,7 @@ import Hero from "../hero/Hero";
 const Home = () => {
   return (
     <div className="flex flex-col gap-12 md:gap-20 ">
-      <Header/>
       <Hero/>
-      <Footer/>
     </div>
   );
 };
