@@ -11,7 +11,7 @@ import FullChatPage from './components/chatPage/FullChatPage';
 import { useAuthContext } from './context/AuthContext';
 function App() {
   const {authUser}=useAuthContext()
-  console.log(authUser)
+  // console.log(authUser)
   return (
     <>
       <div className='p-4 h-full w-full bg-gray-400 rounded-md bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-5 flex flex-col gap-12 md:gap-20 '>

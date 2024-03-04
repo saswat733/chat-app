@@ -1,31 +1,51 @@
-import React,{useState} from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthContext } from "../../context/AuthContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Navigate } from "react-router-dom";
+import useConverstion from "../../zustand/useConversation";
 
 const SideChatBar = () => {
-  const {authUser,setauthUser}=useAuthContext()
-  const [success, setsuccess] = useState(false)
-  const handleLogOut=async()=>{
+  const { selectedConverstion, setSelectedConverstion } = useConverstion();
+  const { authUser, setauthUser } = useAuthContext();
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [conversations, setConversations] = useState([]);
+  // console.log(selectedConverstion)
+  useEffect(() => {
+    const getConversations = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get("/api/users/");
+        setConversations(response.data);
+      } catch (error) {
+        console.log("error in fetching conversations:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getConversations();
+  }, []);
+
+  const handleLogOut = async () => {
     try {
-      await axios.get('/api/auth/logout');
-      toast.success('Successfully Logged Out')
-      setsuccess(true);
-      localStorage.removeItem('chat-user')
-      setauthUser('')
-      
+      await axios.get("/api/auth/logout");
+      toast.success("Successfully Logged Out");
+      setSuccess(true);
+      localStorage.removeItem("chat-user");
+      setauthUser("");
     } catch (error) {
-      console.log('error in logOut:',error.message);
-      toast.error('Error in Logging Out try again later!')
-      
+      console.log("error in logOut:", error.message);
+      toast.error("Error in Logging Out try again later!");
     }
+  };
+
+  if (success) {
+    return <Navigate to={"/"} />;
   }
-  if(success){
-    return <Navigate to={'/'}/>
-  }
+
   return (
-    <div className=" rounded-lg p-2 flex flex-col gap-2">
+    <div className="rounded-lg p-2 flex flex-col gap-2">
       <div>
         <label className="input input-bordered flex items-center gap-2">
           <input type="text" className="grow" placeholder="Search" />
@@ -44,24 +64,30 @@ const SideChatBar = () => {
         </label>
       </div>
       <div className="divider divider-primary"></div>
-      <div className="">
-        <ul className="menu bg-base-200 w-56 rounded-box">
-          <li>
-            <div className="flex gap-4">
-              <div className="avatar offline">
-                <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                  <img src={authUser.profilePic} />
+      <div className="overflow-y-scroll mb-4">
+        <ul className="menu bg-base-200 w-56 rounded-box overflow-y-scroll overflow-hidden">
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            conversations.map((ele, key) => (
+              <li onClick={()=>setSelectedConverstion(ele)} key={key} className={`border-b mb-1 ${selectedConverstion && selectedConverstion._id === ele._id ? "bg-blue-300 text-black" : ""}`}>
+                <div className={'flex gap-4'}>
+                  <div className="avatar offline">
+                    <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                      <img src={ele.profilePic} alt={`${ele.username} profile`} />
+                    </div>
+                  </div>
+                  <h1 className="font-mono font-bold">{ele.username}</h1>
                 </div>
-              </div>
-                <h1 className="font-mono font-bold">
-                  {authUser.username}
-                </h1>
-            </div>
-          </li>
+              </li>
+            ))
+          )}
         </ul>
       </div>
       <div className="divider divider-primary"></div>
-      <button onClick={handleLogOut} className="btn btn-wide absolute bottom-2 left-1">Log Out</button>
+      <button onClick={handleLogOut} className="btn btn-wide absolute bottom-2 left-1">
+        Log Out
+      </button>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import React from "react";
 import {useState} from 'react'
 import toast from "react-hot-toast";
 import { Link, Navigate } from "react-router-dom";
+import { useAuthContext } from "../../context/AuthContext";
 const Login = () => {
    const [inputs, setinputs] = useState({
     username:"",
@@ -11,13 +12,16 @@ const Login = () => {
    const [loading, setloading] = useState(false)
    const [error, seterror] = useState(false)
    const [success, setsuccess] = useState(false)
-
+   const {setauthUser,authUser}=useAuthContext()
    const handleLogin=async(e)=>{
     e.preventDefault();
     setloading(true);
+    // console.log(authUser)
     try {
       const response=await axios.post('/api/auth/login',{...inputs})
-      console.log(response);
+      // console.log(response.data);
+
+      setauthUser(response.data)
       setsuccess(true);
       setloading(false);
     } catch (error) {
