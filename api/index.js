@@ -14,9 +14,7 @@ app.use(cors({
   credentials:true
 }))
 
-app.get('/', (req, res) => {
-  res.send('Hello, world!');
-});
+
 const __dirname=path.resolve()
 app.use(express.json())
 app.use(cookieParser())
