@@ -3,6 +3,7 @@ import { useAuthContext } from "../../../context/AuthContext";
 
 const NoChats = () => {
     const {authUser}=useAuthContext()
+    // console.log(authUser)
   return (
     <div className="px-4 flex-1 overflow-auto text-black">
       <div className="flex flex-col justify-center items-center space-y-4  overflow-auto">

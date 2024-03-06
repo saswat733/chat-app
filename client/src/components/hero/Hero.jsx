@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
-    <div className="mx-auto ">
+    <div className=" flex justify-center md:mx-auto ">
       <div className="indicator">
         <span className="indicator-item badge badge-secondary" style={{margin:"15px"}}></span>
         <div className="grid p-4 m-4 rounded-lg bg-base-300 place-items-center">
@@ -21,9 +21,9 @@ const Hero = () => {
           <div className="hero bg-base-200">
             <div className="hero-content text-center">
               <div className="">
-                <h1 className="text-5xl font-bold max-w-lg"><span className="text-orange-600">Connect</span> with your circle in a fun way!</h1>
-                <p className="py-6 max-w-lg">
-                  ChatiFy make your communication with relatives, work friends, family more fun. Stay connected with them with plenty of features.
+                <h1 className="md:text-5xl font-bold text-sm md:max-w-lg"><span className="text-orange-600 text-lg">Connect</span> with your circle in a fun way!</h1>
+                <p className="py-6 text-sm text-wrap w-64 md:max-w-lg">
+                  ChatiFy make your communication with strangers, work friends, family more fun. Stay connected with them with plenty of features.
                 </p>
                 <Link to={'/login'} className="btn btn-success">Get Started</Link>
               </div>

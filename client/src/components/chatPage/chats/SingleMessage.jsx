@@ -1,14 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import { useAuthContext } from "../../../context/AuthContext";
 import useConverstion from "../../../zustand/useConversation";
 import axios from 'axios'
+import { useSocketContext } from "../../../context/SocketContext";
+import notificationSound from '../../../assets/notification.mp3'
 
 const SingleMessage = () => {
   const { messages, setMessages, selectedConverstion } = useConverstion();
   const { authUser } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null); // State for tracking errors
-
+  const {socket}=useSocketContext();
+  const notificationRef = useRef(null);
+  
+  useEffect(() => {
+    const useListenMessage=()=>{
+     socket?.on("newMessage",(newMessage)=>{
+      notificationRef.current?.play(); // Play the notification sound
+       setMessages([...messages,newMessage]);
+     })
+     //this line make sures the event runs only once
+     return ()=>socket?.off("newMessage")
+ 
+    } 
+    
+    useListenMessage();
+    
+   }, [socket,setMessages,messages])
+  
   // Function to format the timestamp into 12-hour format
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -20,6 +39,18 @@ const SingleMessage = () => {
     hours = hours || 12; // Handle midnight (0 hours)
     return `${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds} ${ampm}`;
   };
+
+
+  const lastMessage=useRef();
+
+
+  useEffect(() => {
+    setTimeout(() => {
+      lastMessage.current?.scrollIntoView({behaviour:"smooth"});
+      
+    }, 100);
+  }, [messages])
+  
 
   useEffect(() => {
     const getAllMessages = async () => {
@@ -39,6 +70,9 @@ const SingleMessage = () => {
     getAllMessages();
   }, [selectedConverstion?._id, setMessages]);
 
+
+  
+
   return (
     <>
       {loading ? (
@@ -48,7 +82,7 @@ const SingleMessage = () => {
       ) : (
         <>
           {messages.map((message, key) => (
-            <div className="h-full" key={key}>
+            <div ref={lastMessage} className={`h-full ${message.senderId === selectedConverstion._id ? 'chat-start shake' : 'chat-end'}`} key={key}>
               <div className={`chat ${message.senderId === selectedConverstion._id ? 'chat-start' : 'chat-end'}`}>
                 <div className="chat-image avatar">
                   <div className="w-10 rounded-full">
@@ -57,6 +91,7 @@ const SingleMessage = () => {
                       src={message.senderId === selectedConverstion._id ? selectedConverstion.profilePic : authUser.profilePic}
                     />
                   </div>
+                  <audio ref={notificationRef} src={notificationSound} />
                 </div>
                 <div className="chat-header">
                   {message.senderId === selectedConverstion._id ? selectedConverstion.username : authUser.username}{" "}

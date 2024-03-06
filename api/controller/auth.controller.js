@@ -60,7 +60,7 @@ export const loginUser=async (req,res)=>{
     try {
 
         const {username,password}=req.body;
-        console.log(username)
+        // console.log(username)
       
 
         const user=await User.findOne({username})

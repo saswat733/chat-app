@@ -4,14 +4,17 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { Navigate } from "react-router-dom";
 import useConverstion from "../../zustand/useConversation";
+import { useSocketContext } from "../../context/SocketContext";
 
 const SideChatBar = () => {
+  const { onlineUsers } = useSocketContext();
   const { selectedConverstion, setSelectedConverstion } = useConverstion();
   const { authUser, setauthUser } = useAuthContext();
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [conversations, setConversations] = useState([]);
-  // console.log(selectedConverstion)
+  const [search, setsearch] = useState("");
+  const [hamburger, sethamburger] = useState(false)
   useEffect(() => {
     const getConversations = async () => {
       setLoading(true);
@@ -40,15 +43,42 @@ const SideChatBar = () => {
     }
   };
 
+  const HandleSubmit = (e) => {
+    e.preventDefault();
+    if (!search) {
+      return;
+    }
+    if (search.length < 3) {
+      return toast.error("Search character must be 3 characters long");
+    }
+    const conversation = conversations.find((c) =>
+      c.username.toLowerCase().includes(search.toLowerCase())
+    );
+
+    if (conversation) {
+      setSelectedConverstion(conversation);
+      setsearch("");
+    } else {
+      toast.error("No such user found!");
+    }
+  };
+
   if (success) {
     return <Navigate to={"/"} />;
   }
 
   return (
-    <div className="rounded-lg p-2 flex flex-col gap-2">
-      <div>
+    <div className="rounded-lg p-2 flex flex-col gap-2 ">
+      
+      <form onSubmit={HandleSubmit}>
         <label className="input input-bordered flex items-center gap-2">
-          <input type="text" className="grow" placeholder="Search" />
+          <input
+            value={search}
+            onChange={(e) => setsearch(e.target.value)}
+            type="text"
+            className="grow"
+            placeholder="Search"
+          />
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 16 16"
@@ -62,30 +92,50 @@ const SideChatBar = () => {
             />
           </svg>
         </label>
-      </div>
+      </form>
+
       <div className="divider divider-primary"></div>
       <div className="overflow-y-scroll mb-4">
         <ul className="menu bg-base-200 w-56 rounded-box overflow-y-scroll overflow-hidden">
           {loading ? (
             <p>Loading...</p>
           ) : (
-            conversations.map((ele, key) => (
-              <li onClick={()=>setSelectedConverstion(ele)} key={key} className={`border-b mb-1 ${selectedConverstion && selectedConverstion._id === ele._id ? "bg-blue-300 text-black" : ""}`}>
-                <div className={'flex gap-4'}>
-                  <div className="avatar offline">
-                    <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                      <img src={ele.profilePic} alt={`${ele.username} profile`} />
+            conversations.map((ele, key) => {
+              const isOnline = onlineUsers.includes(ele._id); // Check if user is online
+              return (
+                <li
+                  onClick={() => setSelectedConverstion(ele)}
+                  key={key}
+                  className={`border-b mb-1 ${
+                    selectedConverstion && selectedConverstion._id === ele._id
+                      ? "bg-blue-300 text-black"
+                      : ""
+                  }`}
+                >
+                  <div className={"flex gap-4"}>
+                    <div
+                      className={`avatar ${isOnline ? "online" : "offline"}`}
+                    >
+                      <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                        <img
+                          src={ele.profilePic}
+                          alt={`${ele.username} profile`}
+                        />
+                      </div>
                     </div>
+                    <h1 className="font-mono font-bold">{ele.username}</h1>
                   </div>
-                  <h1 className="font-mono font-bold">{ele.username}</h1>
-                </div>
-              </li>
-            ))
+                </li>
+              );
+            })
           )}
         </ul>
       </div>
       <div className="divider divider-primary"></div>
-      <button onClick={handleLogOut} className="btn btn-wide absolute bottom-2 left-1">
+      <button
+        onClick={handleLogOut}
+        className="btn btn-wide absolute bottom-2 left-1"
+      >
         Log Out
       </button>
     </div>

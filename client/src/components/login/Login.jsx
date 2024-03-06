@@ -20,7 +20,7 @@ const Login = () => {
     try {
       const response=await axios.post('/api/auth/login',{...inputs})
       // console.log(response.data);
-
+      localStorage.setItem('chat-user',JSON.stringify(response.data))
       setauthUser(response.data)
       setsuccess(true);
       setloading(false);
@@ -37,15 +37,15 @@ const Login = () => {
     return <Navigate to={'/chats'}/>
    }
 
-
+   
   return (
     <div className="h-full overflow-hidden rounded-lg">
       <div className="glass h-full overflow-hidden">
-        <div className="hero min-h-screen bg-base-200">
+        <div className="hero  md:min-h-screen bg-base-200">
           <div className="hero-content flex-col lg:flex-row-reverse">
             <div className="text-center lg:text-left">
-              <h1 className="text-5xl text-orange-600 font-bold">Login now!</h1>
-              <p className="py-6">SAFE-SECURE-PRIVATE</p>
+              <h1 className=" text-2xl md:text-5xl text-orange-600 font-bold">Login now!</h1>
+              <p className="py-2 md:py-6">SAFE-SECURE-PRIVATE</p>
             </div>
             <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
               <form className="card-body" onSubmit={handleLogin}>
@@ -80,7 +80,7 @@ const Login = () => {
                     </Link>
                   </label>
                 </div>
-                <div className="form-control mt-6">
+                <div className="form-control md:mt-6">
                   {
                     loading?(<span className="loading loading-dots loading-lg"></span>):(
                   <button className="btn btn-primary">Login</button>)

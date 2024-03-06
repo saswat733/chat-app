@@ -72,25 +72,25 @@ const SignUp = () => {
 
 
   return (
-    <div className="h-full rounded-lg">
-      <div className="glass h-full rounded-lg">
-        <div className="hero min-h-screen rounded-lg bg-base-200">
-          <div className="hero-content flex-col lg:flex-row-reverse">
+    <div className="md:h-full border mb-4 rounded-lg">
+      <div className="glass md:h-full rounded-lg">
+        <div className="hero  md:min-h-screen rounded-lg bg-base-200">
+          <div className="hero-content h-fit overflow-y-scroll flex-col lg:flex-row-reverse">
             <div className="text-center lg:text-center">
-              <h1 className="text-5xl text-orange-600 font-bold">
+              <h1 className="text-1xl md:text-5xl text-orange-600 font-bold">
                 SignUp now!
               </h1>
-              <p className="py-6">
+              <p className="py-2 hidden md:block text-sm md:py-6">
                 Welcome to SAFE-SECURE-PRIVATE chat app. Chat with your friends
                 family and closed ones privately securely without any data
                 leaks.
               </p>
             </div>
-            <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+            <div className="card border  shrink-0 w-full max-w-sm shadow-2xl bg-base-100 overflow-y-scroll">
               <form className="card-body" onSubmit={handleSignUp}>
-                <div className="form-control">
+                <div className="form-control ">
                   <label className="label">
-                    <span className="label-text">First Name</span>
+                    <span className="label-text hidden md:block">First Name</span>
                   </label>
                   <input
                     type="text"
@@ -105,7 +105,7 @@ const SignUp = () => {
                 </div>
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Username</span>
+                    <span className="label-text hidden md:block">Username</span>
                   </label>
                   <input
                     type="text"
@@ -120,7 +120,7 @@ const SignUp = () => {
                 </div>
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Email</span>
+                    <span className="label-text hidden md:block">Email</span>
                   </label>
                   <input
                     type="email"
@@ -135,7 +135,7 @@ const SignUp = () => {
                 </div>
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Password</span>
+                    <span className="label-text hidden md:block">Password</span>
                   </label>
                   <input
                     type="password"
@@ -150,7 +150,7 @@ const SignUp = () => {
                 </div>
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Confirm Password</span>
+                    <span className="label-text hidden md:block">Confirm Password</span>
                   </label>
                   <input
                     type="password"
@@ -164,7 +164,7 @@ const SignUp = () => {
                   />
                 </div>
                 <div className="form-control">
-                  <span className="label-text">Gender</span>
+                  <span className="label-text hidden md:block">Gender</span>
                   <div className="flex gap-8">
                     <div className="flex justify-center gap-2">
                       <input
@@ -193,7 +193,7 @@ const SignUp = () => {
                   </div>
                 </div>
 
-                <div className="form-control mt-6">
+                <div className="form-control md:mt-6">
                   {
                     loading?(<span className="loading loading-dots loading-lg"></span>):(
                   <button type="submit" className="btn btn-primary">
