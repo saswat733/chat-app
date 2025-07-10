@@ -1,15 +1,19 @@
-import { createContext, useContext } from "react";
-import { useState } from "react";
-export const AuthContext=createContext();
+import { createContext, useContext, useState } from "react";
 
-export const useAuthContext=()=>{
-    return useContext(AuthContext);
-}
+export const AuthContext = createContext();
 
-export const AuthContextProvider=({children})=>{
-    const [authUser, setauthUser] = useState(JSON.parse(localStorage.getItem("chat-user"))||'')
+export const useAuthContext = () => {
+  return useContext(AuthContext);
+};
 
-    return <AuthContext.Provider value={{authUser,setauthUser}}>
-        {children}
+export const AuthContextProvider = ({ children }) => {
+  const [authUser, setAuthUser] = useState(
+    JSON.parse(localStorage.getItem("chat-user")) || null
+  );
+
+  return (
+    <AuthContext.Provider value={{ authUser, setAuthUser }}>
+      {children}
     </AuthContext.Provider>
-}
+  );
+};

@@ -1,28 +1,35 @@
-import React from 'react'
-import Chat from './Chat'
-import SideChatBar from './SideChatBar'
-import useConverstion from '../../zustand/useConversation';
-import NoChats from './chats/NoChats';
+import React from "react";
+import Chat from "./Chat";
+import SideChatBar from "./SideChatBar";
+import useConversation from "../../zustand/useConversation";
+import NoChats from "./chats/NoChats";
 
 const FullChatPage = () => {
-  const { selectedConverstion, setSelectedConverstion } = useConverstion();
+  const { selectedConversation } = useConversation();
+
+  console.log("FullChatPage - selectedConversation:", selectedConversation); // Debug log
+
   return (
-    <div className='h-screen p-4 flex justify-center items-center relative'>
-        <img src="https://st3.depositphotos.com/1010652/19073/v/450/depositphotos_190737044-stock-illustration-set-colorful-doodle-paper-background.jpg" alt="image" className='absolute -z-10 w-full h-screen '/>
-        <div className=' flex h-full w-full bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-30 border border-gray-100 rounded-lg'>
-        <SideChatBar/>
-        {
-          selectedConverstion?(<>
-          <Chat/>
-          </>):(<>
-          <NoChats/>
-          </>)
-        }
-        
+    <div className="flex h-screen bg-gray-100">
+      {/* Sidebar - Always render, visibility controlled by SideChatBar component */}
+      <SideChatBar />
 
+      {/* Main content */}
+      <main className="flex-1 flex flex-col overflow-hidden bg-white lg:relative">
+        {/* Mobile header */}
+        <header className="lg:hidden bg-indigo-800 text-white p-4 shadow-md">
+          <h1 className="text-xl font-bold">
+            {selectedConversation ? selectedConversation.fullName : "Chat App"}
+          </h1>
+        </header>
+
+        {/* Chat area */}
+        <div className="flex-1 overflow-hidden">
+          {selectedConversation ? <Chat /> : <NoChats />}
         </div>
+      </main>
     </div>
-  )
-}
+  );
+};
 
-export default FullChatPage
+export default FullChatPage;

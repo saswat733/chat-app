@@ -1,86 +1,143 @@
 import { Conversation } from "../models/conversation.models.js";
 import { Message } from "../models/message.models.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
+export const sendMessage = async (req, res) => {
+  try {
+    const { message } = req.body;
+    const { id: receiverId } = req.params;
+    const senderId = req.user?._id;
 
-export const sendMessage=async(req,res)=>{
-    try {
-        let {message}=req.body;
-        // console.log(message)
-        const {id:receiverId}=req.params;
-        // console.log(receiverId)
-        const senderId=req.user?._id;
-        // console.log(senderId)
-        
-
-       const conversation= await Conversation.findOne({
-            participants:{$all:[senderId,receiverId]}
-        })
-
-        // console.log("conversation:",conversation)
-
-        //if no converstion would be there then create it
-        if(!conversation){
-            conversation=await Conversation.create({
-                participants:[senderId,receiverId]
-            })
-        }
-        // console.log(conversation)
-
-
-        const newMessage=new Message({
-            senderId,
-            receiverId,
-            message,
-        })
-        // console.log("message:",newMessage._id)
-
-        if(newMessage){
-            conversation.messages.push(newMessage._id)
-        }
-
-        //this will run in parallel
-        await Promise.all([conversation.save(),newMessage.save()])
-          
-        //socket io functionality
-        let receiverSocketId=getReceiverSocketId(receiverId)
-        if(receiverSocketId){
-            //io.to(<socket_id>) used to send events to specific client
-            io.to(receiverSocketId).emit("newMessage",newMessage)
-        }
-
-
-        res.status(201).json(newMessage)
-
-    } catch (error) {
-        console.log("error in sendMessage controller:",error.message)
-        res.status(500).json({
-            error:"Internal server error"
-        })
+    // Validate input
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: "Message cannot be empty" });
     }
-}
 
+    // Find or create conversation efficiently
+    let conversation = await Conversation.findOne({
+      participants: { $all: [senderId, receiverId] },
+    });
 
-export const getMessage=async(req,res)=>{
-    try {
-        const {id:userToChatid}=req.params;
-        const senderId=req.user._id;
-
-        const conversation=await Conversation.findOne({
-            participants:{$all:[senderId,userToChatid]}
-        }).populate("messages"); //not refrence but actual messages send krga
-
-        if(!conversation){
-            return res.status(200).json([]);
-        }
-        const messages=conversation.messages;
-
-        res.status(200).json(messages)
-
-
-    } catch (error) {
-        console.log("error in getMessage controller:",error.message)
-        res.status(500).json({
-            error:"Internal server error"
-        })
+    if (!conversation) {
+      conversation = await Conversation.create({
+        participants: [senderId, receiverId],
+      });
     }
-}
+
+    // Create and save message
+    const newMessage = new Message({
+      senderId,
+      receiverId,
+      message: message.trim(),
+    });
+
+    // Save both in parallel for better performance
+    const [savedMessage] = await Promise.all([
+      newMessage.save(),
+      Conversation.findByIdAndUpdate(
+        conversation._id,
+        { $push: { messages: newMessage._id } },
+        { new: true }
+      ),
+    ]);
+
+    // Send socket notification (don't wait for it)
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", savedMessage);
+    }
+
+    // Return response immediately
+    res.status(201).json(savedMessage);
+  } catch (error) {
+    console.log("error in sendMessage controller:", error.message);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+export const getMessage = async (req, res) => {
+  try {
+    const { id: userToChatid } = req.params;
+    const senderId = req.user._id;
+
+    const conversation = await Conversation.findOne({
+      participants: { $all: [senderId, userToChatid] },
+    }).populate("messages"); //not refrence but actual messages send krga
+
+    if (!conversation) {
+      return res.status(200).json([]);
+    }
+    const messages = conversation.messages;
+
+    res.status(200).json(messages);
+  } catch (error) {
+    console.log("error in getMessage controller:", error.message);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+export const sendFileMessage = async (req, res) => {
+  try {
+    const { id: receiverId } = req.params;
+    const senderId = req.user?._id;
+
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    // Debug: Log the file object to see what properties are available
+    console.log("File object from multer:", req.file);
+
+    // Find or create conversation efficiently
+    let conversation = await Conversation.findOne({
+      participants: { $all: [senderId, receiverId] },
+    });
+
+    if (!conversation) {
+      conversation = await Conversation.create({
+        participants: [senderId, receiverId],
+      });
+    }
+
+    // Create file message with proper file info handling
+    const newMessage = new Message({
+      senderId,
+      receiverId,
+      message: req.file.originalname || req.file.filename, // Use original filename as message
+      isFile: true,
+      fileInfo: {
+        name: req.file.originalname || req.file.filename,
+        size: req.file.size,
+        fileType: req.file.mimetype,
+        url: req.file.path, // Cloudinary URL from multer-storage-cloudinary
+      },
+    });
+
+    // Save both in parallel for better performance
+    const [savedMessage] = await Promise.all([
+      newMessage.save(),
+      Conversation.findByIdAndUpdate(
+        conversation._id,
+        { $push: { messages: newMessage._id } },
+        { new: true }
+      ),
+    ]);
+
+    // Send socket notification
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", savedMessage);
+    }
+
+    res.status(201).json(savedMessage);
+  } catch (error) {
+    console.log("error in sendFileMessage controller:", error.message);
+    res.status(500).json({
+      error: "Failed to send file message",
+    });
+  }
+};

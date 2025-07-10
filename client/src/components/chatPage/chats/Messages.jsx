@@ -1,13 +1,22 @@
 import React from "react";
 import SingleMessage from "./SingleMessage";
+import useConversation from "../../../zustand/useConversation";
+import NoChats from "./NoChats";
+import MessageErrorBoundary from "../../ErrorBoundary";
 
 const Messages = () => {
+  const { selectedConversation } = useConversation();
+
+  if (!selectedConversation) {
+    return <NoChats />;
+  }
+
   return (
-    <div className="px-4 flex-1 overflow-auto">
-    <div className="flex flex-col space-y-4 overflow-auto">
-      <SingleMessage />
+    <div className="space-y-4">
+      <MessageErrorBoundary>
+        <SingleMessage />
+      </MessageErrorBoundary>
     </div>
-  </div>
   );
 };
 
